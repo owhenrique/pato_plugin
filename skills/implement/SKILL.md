@@ -1,6 +1,6 @@
 ---
 name: Implement (Pato)
-description: Implementa uma spec de docs/specs/ em branch própria, uma tarefa por commit, com testes de tela via CLI do Playwright. Use quando o usuário pedir "/pato/implement", "implementa a spec", "implementa" ou "pode implementar" logo após o /pato/spec na mesma sessão.
+description: Implementa uma spec de docs/specs/ em branch própria — triagem de complexidade com escolha do usuário (direto na janela ou agent-driven com subagente por tarefa), uma tarefa por commit, telas via Playwright CLI. Use quando o usuário pedir "/pato/implement", "implementa a spec", "implementa" ou "pode implementar" logo após o /pato/spec na mesma sessão.
 ---
 
 # /pato/implement — Implementar a spec
@@ -31,7 +31,16 @@ O comando não recebe argumento: ele roda na mesma sessão do `/pato/spec`.
 4. Senão, crie a branch a partir da base atualizada: `feat/<ID>-<slug>` (ex.: `feat/ZH-123-menu-inicial-bot`; sem chave de card, `feat/<slug>`); use `fix/` se a spec for de correção.
 5. Atualize o frontmatter da spec: `status: em-andamento`, `branch: <nome>`. Faça o primeiro commit com a spec: `docs(spec): <ID> <título>`.
 
-## 3. Implementar
+## 3. Confirmar o modo de implementação
+
+1. Leia a **Triagem de implementação** da spec. Se ela não existir (spec antiga), monte-a agora com os mesmos critérios e registre na spec.
+2. Pergunte ao usuário com o tool `question`, sem assumir — mostre o modo sugerido pela spec e a regra (direto só com 1 tarefa, ≤ 3 arquivos, ≤ 50 linhas de lógica e sem tela, migração, contrato de API ou dependência nova; qualquer coisa além é agent-driven):
+   - **Direto (mesma janela)** — você implementa aqui mesmo.
+   - **Agent-driven (subagente por tarefa)** — cada tarefa roda num subagente em contexto limpo; você orquestra, confere e commita.
+3. Registre a escolha no frontmatter da spec (`modo: direto` ou `modo: agent-driven`).
+4. Se o tool `subagent` não existir na sessão e o usuário escolher agent-driven, avise e ofereça o modo direto.
+
+## 4. Modo direto (mesma janela)
 
 **Regra de leitura mínima.** A exploração já foi feita no `/pato/spec`; aqui você lê só o estritamente necessário:
 
@@ -63,7 +72,30 @@ Regras:
 - Nunca commite segredos (`.env`, tokens, credenciais).
 - Não faça push nem abra MR/PR aqui; isso é do `/pato/close-spec`.
 
-## 4. Fechamento do passo
+## 5. Modo agent-driven (subagente por tarefa)
+
+Você é o orquestrador: mantém a janela principal leve e delega cada tarefa a um subagente novo, **em sequência** (a ordem da spec importa; não paralelize).
+
+Para cada tarefa da seção **Tarefas**, em ordem:
+
+1. Anuncie que a tarefa vai começar.
+2. Dispare o subagente com o tool `subagent` (agente `general`, contexto limpo, foreground — espere terminar antes da próxima). O prompt leva:
+   - o diretório do projeto e o caminho da spec;
+   - a tarefa N e o texto exato dela;
+   - os itens de "Arquivos que a mudança toca" ligados à tarefa;
+   - a regra de leitura mínima, que vale para o subagente também: só a spec, esses arquivos, testes ligados e dependências diretas; busca por linha + trecho; sem re-explorar o repositório; graphify `explain`/`affected` se o grafo existir;
+   - implementar **só esta tarefa**, seguindo os padrões do projeto (leia o `AGENTS.md` do repo) e o design técnico da spec;
+   - rodar lint/testes relevantes da tarefa — e o E2E Playwright via CLI se mexer em tela (falha bloqueia);
+   - **não commitar, não fazer push e não editar a spec** (o `[x]` e o status são seus);
+   - reportar: status, arquivos alterados, comandos de teste com resultado, bloqueios e ambiguidades.
+3. Confira o retorno com `git status --short` e `git diff --stat`: os arquivos devem casar com o escopo da tarefa. Não leia o diff inteiro.
+4. Tarefa ok: marque `[x]` na spec e faça o commit atômico (só os caminhos da tarefa), ex.: `feat(bot): envia menu inicial [ZH-123]`.
+5. Bloqueio, teste falhando ou escopo estourado: continue a sessão do subagente com o tool `subagent` (`sessionID`) passando o feedback específico; se for algo simples, corrija você mesmo e rode o teste da tarefa. Ambiguidade na spec → pare e pergunte.
+6. Não deu para resolver em uma rodada: pare, mostre o que aconteceu e pergunte como seguir.
+
+Valem as mesmas regras do modo direto.
+
+## 6. Fechamento do passo
 
 1. Rode a suíte de testes completa (incluindo a suíte Playwright via CLI se houver telas) e verifique os critérios de aceite; marque os que foram atendidos.
 2. Mostre ao usuário: tarefas concluídas, testes rodados e resultado (com os arquivos de evidência), e qualquer pendência.

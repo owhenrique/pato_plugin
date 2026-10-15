@@ -3,6 +3,7 @@ id: <ID>                    # chave do card (ex.: ZH-123) ou AAAA-MM-DD-slug
 card: <url do card ou "—">
 titulo: <Título curto da tarefa>
 status: pendente            # pendente → em-andamento → implementado
+modo:                       # direto | agent-driven (definido no /pato/implement)
 criada_em: AAAA-MM-DD
 implementada_em:
 verificada_em:
@@ -43,6 +44,22 @@ Caminhos exatos (criar/alterar/remover) e os símbolos envolvidos. É o escopo d
 
 - `caminho/do/arquivo.ext` — <o que muda / símbolos>
 - ...
+
+## Triagem de implementação
+Preenchido no `/pato/spec`; o `/pato/implement` confirma o modo com o usuário antes de começar.
+
+| Métrica | Valor |
+| --- | --- |
+| Tarefas | <nº> |
+| Arquivos que a mudança toca | <nº> |
+| Linhas de lógica estimadas | <nº> |
+| Toca em tela (E2E) | Sim/Não |
+| Migração de dados | Sim/Não |
+| Muda contrato de API | Sim/Não |
+| Dependência nova | Sim/Não |
+| Repos envolvidos | <nº> |
+
+**Modo sugerido:** direto | agent-driven — <porquê em uma frase>.
 
 ## Tarefas
 - [ ] 1. ...

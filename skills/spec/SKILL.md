@@ -80,7 +80,8 @@ Se houver **qualquer** ambiguidade relevante ou a tarefa estiver mal descrita:
 5. Preencha **"Arquivos que a mudança toca"** com os caminhos exatos (criar/alterar/remover) que a exploração encontrou — é a lista que limita a leitura do `/pato/implement` e o escopo do `/pato/verify`.
 6. Leve para a spec os critérios de aceite do pedido (reescritos de forma testável) e acrescente os que surgirem das respostas.
 7. Quebre a implementação em tarefas pequenas e verificáveis (checklist `- [ ]`), cada uma correspondendo a um commit lógico.
-8. **Regra de telas (Playwright CLI):** se o escopo tocar telas, preencha a seção "Telas e fluxos E2E (Playwright)" com:
+8. Preencha a **"Triagem de implementação"**: conte tarefas e arquivos, estime as linhas de lógica e marque tela, migração, contrato de API e dependência nova. Sugira o modo: **direto** (mesma janela) só com 1 tarefa, ≤ 3 arquivos, ≤ 50 linhas e nada mais marcado; qualquer coisa além → **agent-driven**. O `/pato/implement` confirma o modo com o usuário antes de começar.
+9. **Regra de telas (Playwright CLI):** se o escopo tocar telas, preencha a seção "Telas e fluxos E2E (Playwright)" com:
    - os fluxos que precisam ser testados (pré-condição, passos, resultado esperado);
    - a estratégia de seletores (role/label/`data-testid`, evitando CSS frágil);
    - o comando de execução, ex.: `npx playwright test e2e/<arquivo>.spec.ts`;
@@ -89,7 +90,7 @@ Se houver **qualquer** ambiguidade relevante ou a tarefa estiver mal descrita:
 
 ## 5. Revisão com o usuário
 
-1. Mostre um resumo curto da spec (objetivo, escopo, nº de tarefas, riscos) e o caminho do arquivo.
+1. Mostre um resumo curto da spec (objetivo, escopo, nº de tarefas, modo sugerido pela triagem, riscos) e o caminho do arquivo.
 2. Pergunte se aprova ou quer ajustes. Aplique os ajustes no arquivo.
 3. Não faça commit da spec aqui: ela entra no primeiro commit do `/pato/implement`.
 4. Não altere nada no card (status, comentários) sem pedido do usuário.
