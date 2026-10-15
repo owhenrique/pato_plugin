@@ -22,5 +22,12 @@ for skill_dir in "$REPO_DIR"/skills/*/; do
   echo "skill: $skill_name -> $skill_dir"
 done
 
+# Graphify (opcional): o /pato/spec oferece instalar na primeira vez
+if command -v graphify >/dev/null 2>&1; then
+  echo "graphify: encontrado"
+else
+  echo "graphify: não encontrado (o /pato/spec vai oferecer instalar na primeira vez)"
+fi
+
 echo
-echo "Pato instalado. No OpenCode: /pato/spec, /pato/implement, /pato/close-spec"
+echo "Pato instalado. No OpenCode: /pato/spec, /pato/implement, /pato/verify, /pato/close-spec"

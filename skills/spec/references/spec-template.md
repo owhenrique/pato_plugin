@@ -5,6 +5,7 @@ titulo: <Título curto da tarefa>
 status: pendente            # pendente → em-andamento → implementado
 criada_em: AAAA-MM-DD
 implementada_em:
+verificada_em:
 branch:
 merge_request:
 ---
@@ -32,11 +33,16 @@ Registro das perguntas feitas durante a spec e o que foi decidido.
 Somente o que o usuário pediu explicitamente para decidir automaticamente. Deixe vazio se não houver.
 
 ## Design técnico
-- Arquivos/módulos afetados
 - Modelos de dados / migrações
 - Endpoints, contratos, mensagens ou telas
 - Integrações externas e configuração (variáveis de ambiente, credenciais)
 - Tratamento de erros e casos de borda
+
+## Arquivos que a mudança toca
+Caminhos exatos (criar/alterar/remover) e os símbolos envolvidos. É o escopo de leitura do `/pato/implement` e do `/pato/verify`: fora desta lista, só dependências diretas.
+
+- `caminho/do/arquivo.ext` — <o que muda / símbolos>
+- ...
 
 ## Tarefas
 - [ ] 1. ...
@@ -57,6 +63,16 @@ Como rodar: `npx playwright test e2e/<arquivo>.spec.ts`
 
 ## Testes
 Como validar: além dos fluxos de tela acima, testes automatizados a criar/rodar e verificação manual.
+
+## Verificação independente
+Preenchido no `/pato/verify`; o `/pato/close-spec` não começa sem esta seção.
+
+- **Data:** AAAA-MM-DD
+- **Verificador:** subagente em contexto limpo (agente `general`)
+- **Suítes rodadas:** <comandos e resultado>
+- **Critérios de aceite:** <atendidos / parciais / não atendidos, com evidência>
+- **Achados:** <por severidade, com `arquivo:linha` — ou "Nenhum">
+- **Decisão do usuário:** <o que corrigir / o que aceitar>
 
 ## Registro de testes
 Preenchido no `/pato/close-spec`.

@@ -17,11 +17,38 @@ Produza uma spec clara, revisável e implementável para a tarefa recebida. Não
 3. Traga da fonte: título, tipo, descrição, critérios de aceite, comentários, subtarefas, itens vinculados e anexos quando acessíveis.
 4. Trate o card como a fonte do pedido. Comentários recentes podem alterar a descrição; quando conflitarem, isso é ambiguidade para o passo 3.
 
-## 2. Explorar o código
+## 2. Explorar o código (economia de leitura)
 
-Explore o repositório o suficiente para ancorar a spec no código real: estrutura de pastas, stack, padrões existentes, módulos que serão tocados, testes existentes, `README`/`AGENTS.md`/`CLAUDE.md` e specs anteriores em `docs/specs/`.
+A exploração é **graphify-first**: consulte o grafo do projeto em vez de ler arquivos, e abra só os trechos que as respostas apontarem.
 
-Se o escopo tocar em telas: localize o Playwright do projeto (`playwright.config.*`, pasta de testes e2e, scripts do `package.json`) e entenda como os testes de tela rodam hoje.
+1. Cheque o que existe (na raiz do projeto):
+
+   ```bash
+   command -v graphify >/dev/null && echo "graphify ok" || echo "graphify ausente"
+   test -f graphify-out/graph.json && echo "grafo ok" || echo "grafo ausente"
+   ```
+
+2. **Com graphify e grafo:** mantenha o grafo atualizado e consulte:
+
+   ```bash
+   graphify check-update .        # indica se há mudanças desde a última extração
+   graphify update .              # incremental; só se check-update indicar mudanças
+   graphify query "<pergunta>"    # subgrafo que responde a pergunta, ex.: "onde ficam os testes E2E?"
+   graphify explain "<Símbolo>"   # um nó e suas conexões
+   graphify affected "<Símbolo>"  # o que depende disso antes de mudar
+   graphify path "A" "B"          # como dois conceitos se conectam
+   ```
+
+   Abra arquivos apenas para confirmar o que o grafo apontou (busca por linha + leitura do trecho). `README`, `AGENTS.md`, `CLAUDE.md` e os títulos/frontmatter das specs em `docs/specs/` podem ser lidos direto — continue dirigido, nunca varra o repositório.
+
+3. **Sem graphify ou sem grafo:** pergunte ao usuário com o tool `question` — nunca instale nem rode a extração sem confirmação:
+
+   - **Instalar e gerar agora:** `uv tool install graphifyy` (sem `uv`, `pipx install graphifyy`; sem nenhum dos dois, peça ao usuário para instalar o CLI) e gere só o código, offline: `graphify extract . --code-only`. Se `graphify-out/` não estiver versionado nem ignorado, acrescente `graphify-out/` ao `.git/info/exclude` para não sujar o git. Depois siga pelo item 2.
+   - **Seguir sem graphify:** exploração dirigida — busca por símbolo (`rg -n`, `grep -n`) e leitura só dos trechos necessários; nunca varra o repositório arquivo a arquivo.
+
+4. O que a spec precisa saber: estrutura de pastas, stack, padrões existentes, módulos que serão tocados, testes existentes. Perguntas de arquitetura ("o que chama X", "quem usa Y", "o que quebra se Z mudar") são respondidas pelo grafo; só leia código quando o grafo não responder.
+
+5. Se o escopo tocar em telas: localize o Playwright do projeto (`playwright.config.*`, pasta de testes e2e, scripts do `package.json`) e entenda como os testes de tela rodam hoje — por busca dirigida ou pelo grafo.
 
 ## 3. Perguntar antes de assumir (OBRIGATÓRIO)
 
@@ -50,9 +77,10 @@ Se houver **qualquer** ambiguidade relevante ou a tarefa estiver mal descrita:
 2. Nomeie o arquivo `docs/specs/<ID>-<slug-kebab-case>.md`, onde `ID` é a chave do card (ex.: `ZH-123`) ou, sem chave, a data de hoje (`AAAA-MM-DD-<slug>`).
 3. Se já existir spec para esse ID, abra-a e pergunte se deve atualizá-la em vez de criar outra.
 4. Preencha seguindo `references/spec-template.md`, com `status: pendente` e `card:` com a URL (ou `—`).
-5. Leve para a spec os critérios de aceite do pedido (reescritos de forma testável) e acrescente os que surgirem das respostas.
-6. Quebre a implementação em tarefas pequenas e verificáveis (checklist `- [ ]`), cada uma correspondendo a um commit lógico.
-7. **Regra de telas (Playwright CLI):** se o escopo tocar telas, preencha a seção "Telas e fluxos E2E (Playwright)" com:
+5. Preencha **"Arquivos que a mudança toca"** com os caminhos exatos (criar/alterar/remover) que a exploração encontrou — é a lista que limita a leitura do `/pato/implement` e o escopo do `/pato/verify`.
+6. Leve para a spec os critérios de aceite do pedido (reescritos de forma testável) e acrescente os que surgirem das respostas.
+7. Quebre a implementação em tarefas pequenas e verificáveis (checklist `- [ ]`), cada uma correspondendo a um commit lógico.
+8. **Regra de telas (Playwright CLI):** se o escopo tocar telas, preencha a seção "Telas e fluxos E2E (Playwright)" com:
    - os fluxos que precisam ser testados (pré-condição, passos, resultado esperado);
    - a estratégia de seletores (role/label/`data-testid`, evitando CSS frágil);
    - o comando de execução, ex.: `npx playwright test e2e/<arquivo>.spec.ts`;

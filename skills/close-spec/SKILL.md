@@ -1,19 +1,20 @@
 ---
 name: Close Spec (Pato)
-description: Fecha uma spec implementada — valida testes, registra teste manual/QA, faz push, abre/atualiza MR ou PR (glab/gh ou texto pronto) e atualiza o card quando acessível. Use quando o usuário pedir "/pato/close-spec", "fecha a spec", "abre o MR/PR" ou "finaliza" logo após o /pato/implement na mesma sessão.
+description: Fecha uma spec implementada — exige a verificação independente registrada, valida testes, registra teste manual/QA, faz push, abre/atualiza MR ou PR (glab/gh ou texto pronto) e atualiza o card quando acessível. Use quando o usuário pedir "/pato/close-spec", "fecha a spec", "abre o MR/PR" ou "finaliza" logo após o /pato/verify na mesma sessão.
 ---
 
 # /pato/close-spec — Fechar a spec, abrir MR/PR e atualizar o card
 
 ## 1. Localizar e validar
 
-1. O comando não recebe argumento. Use a spec implementada pelo `/pato/implement` nesta sessão, sem perguntar qual é. Só se não houver spec nesta sessão, use a spec `em-andamento` cujo `branch:` seja igual a `git branch --show-current`; se ainda assim houver dúvida, pergunte.
+1. O comando não recebe argumento. Use a spec verificada pelo `/pato/verify` nesta sessão, sem perguntar qual é. Só se não houver spec nesta sessão, use a spec `em-andamento` cujo `branch:` seja igual a `git branch --show-current`; se ainda assim houver dúvida, pergunte.
 2. Confirme que está na branch da spec e que não há mudanças não commitadas.
 3. Verifique:
    - todas as tarefas marcadas `[x]`;
    - critérios de aceite atendidos;
-   - testes passando (rode a suíte; se o escopo tem telas, rode a suíte Playwright via CLI: `npx playwright test`).
-   Se algo faltar, mostre o que está pendente e pergunte se deve fechar mesmo assim. Não prossiga sem confirmação.
+   - testes passando (rode a suíte; se o escopo tem telas, rode a suíte Playwright via CLI: `npx playwright test`);
+   - **verificação independente registrada**: `verificada_em:` preenchido e a seção "Verificação independente" com a decisão do usuário. Sem isso, **não prossiga**: pare, mostre o que falta e ofereça `/pato/verify`. A dispensa é exceção: só com ordem explícita do usuário, registrada nessa seção.
+   Para os demais itens, se algo faltar, mostre o que está pendente e pergunte se deve fechar mesmo assim. Não prossiga sem confirmação.
 
 ## 2. Perguntar sobre os testes (OBRIGATÓRIO)
 
@@ -33,10 +34,11 @@ Registre na seção **Registro de testes** da spec (crie a seção antes de "Ris
 | --- | --- | --- | --- | --- | --- | --- |
 | AAAA-MM-DD | Automatizado | local/CI | local | <suíte rodada, nº de testes> | Aprovado | — |
 | AAAA-MM-DD | Playwright (CLI) | local | local | <fluxo E2E verificado> | Aprovado | `test-results/<ID>/<fluxo>.png` |
+| AAAA-MM-DD | Verificação independente | subagente (contexto limpo) | local | <diff contra a spec + suítes rodadas> | Aprovado | seção "Verificação independente" |
 | AAAA-MM-DD | Manual | <nome> | homologação | <fluxos verificados> | Aprovado | <link> |
 ```
 
-As linhas de testes automatizados e Playwright vêm da execução feita no passo 1. Se o usuário disser que não houve teste manual, registre uma linha "Manual | — | — | Não realizado".
+As linhas de testes automatizados e Playwright vêm da execução feita no passo 1, e a de verificação independente, da seção preenchida pelo `/pato/verify`. Se o usuário disser que não houve teste manual, registre uma linha "Manual | — | — | Não realizado".
 
 ## 3. Atualizar a spec
 

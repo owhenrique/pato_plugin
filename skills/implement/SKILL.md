@@ -33,6 +33,15 @@ O comando não recebe argumento: ele roda na mesma sessão do `/pato/spec`.
 
 ## 3. Implementar
 
+**Regra de leitura mínima.** A exploração já foi feita no `/pato/spec`; aqui você lê só o estritamente necessário:
+
+- a spec e os arquivos listados em "Arquivos que a mudança toca";
+- testes diretamente ligados ao que está mudando e dependências imediatas (um type, um helper que o código da mudança importa);
+- para localizar algo pontual, use busca por linha (`rg -n`, `grep -n`) e leia só o trecho (`sed -n` ou `offset`/`limit`), não o arquivo inteiro "por precaução";
+- não re-explore o repositório (estrutura, pastas, arquivos fora da lista);
+- se o grafo do graphify existir e estiver atualizado (`graphify check-update .`), responda dúvidas estruturais com `graphify explain`/`graphify affected` antes de abrir qualquer arquivo; rode `graphify update .` se você criou ou renomeou arquivos;
+- tocar em arquivo **fora da lista** é mudança de escopo: pare e pergunte antes (tool `question`), registrando a decisão em "Decisões e respostas do usuário".
+
 Para cada tarefa da seção **Tarefas**, em ordem:
 
 1. Implemente seguindo os padrões do projeto e o design técnico da spec.
@@ -58,4 +67,4 @@ Regras:
 
 1. Rode a suíte de testes completa (incluindo a suíte Playwright via CLI se houver telas) e verifique os critérios de aceite; marque os que foram atendidos.
 2. Mostre ao usuário: tarefas concluídas, testes rodados e resultado (com os arquivos de evidência), e qualquer pendência.
-3. Indique o próximo passo: `/pato/close-spec`.
+3. Indique o próximo passo: `/pato/verify` (verificação independente); o `/pato/close-spec` só depois dela.
