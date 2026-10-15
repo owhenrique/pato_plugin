@@ -43,7 +43,7 @@ A exploração é **graphify-first**: consulte o grafo do projeto em vez de ler 
 
 3. **Sem graphify ou sem grafo:** pergunte ao usuário com o tool `question` — nunca instale nem rode a extração sem confirmação:
 
-   - **Instalar e gerar agora:** `uv tool install graphifyy` (sem `uv`, `pipx install graphifyy`; sem nenhum dos dois, peça ao usuário para instalar o CLI) e gere só o código, offline: `graphify extract . --code-only`. Se `graphify-out/` não estiver versionado nem ignorado, acrescente `graphify-out/` ao `.git/info/exclude` para não sujar o git. Depois siga pelo item 2.
+   - **Gerar agora** (instalando o CLI se faltar): se `graphify` não estiver no PATH, instale antes (`uv tool install graphifyy`; sem `uv`, `pipx install graphifyy`; sem nenhum dos dois, peça ao usuário para instalar o CLI); gere só o código, offline: `graphify extract . --code-only`. Se `graphify-out/` não estiver versionado nem ignorado, acrescente `graphify-out/` ao `.git/info/exclude` para não sujar o git. Depois siga pelo item 2.
    - **Seguir sem graphify:** exploração dirigida — busca por símbolo (`rg -n`, `grep -n`) e leitura só dos trechos necessários; nunca varra o repositório arquivo a arquivo.
 
 4. O que a spec precisa saber: estrutura de pastas, stack, padrões existentes, módulos que serão tocados, testes existentes. Perguntas de arquitetura ("o que chama X", "quem usa Y", "o que quebra se Z mudar") são respondidas pelo grafo; só leia código quando o grafo não responder.
