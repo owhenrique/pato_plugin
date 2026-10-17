@@ -1,6 +1,6 @@
 ---
 name: Close Spec (Pato)
-description: Fecha uma spec implementada — exige a verificação independente registrada, valida testes, registra teste manual/QA, faz push, abre/atualiza MR ou PR (glab/gh ou texto pronto) e atualiza o card quando acessível. Use quando o usuário pedir "/pato/close-spec", "fecha a spec", "abre o MR/PR" ou "finaliza" logo após o /pato/verify na mesma sessão.
+description: Fecha a spec de uma US implementada — exige a verificação independente registrada e o limite de 500 linhas de lógica, valida testes, registra teste manual/QA, faz push, abre/atualiza um MR ou PR por repo tocado (glab/gh ou texto pronto) com a história na descrição e atualiza o card quando acessível. Use quando o usuário pedir "/pato/close-spec", "fecha a spec", "abre o MR/PR" ou "finaliza" logo após o /pato/verify na mesma sessão.
 ---
 
 # /pato/close-spec — Fechar a spec, abrir MR/PR e atualizar o card
@@ -9,12 +9,15 @@ description: Fecha uma spec implementada — exige a verificação independente 
 
 1. O comando não recebe argumento. Use a spec verificada pelo `/pato/verify` nesta sessão, sem perguntar qual é. Só se não houver spec nesta sessão, use a spec `em-andamento` cujo `branch:` seja igual a `git branch --show-current`; se ainda assim houver dúvida, pergunte.
 2. Confirme que está na branch da spec e que não há mudanças não commitadas.
-3. Verifique:
+3. Descubra a branch alvo (seção 4) e verifique:
    - todas as tarefas marcadas `[x]`;
    - critérios de aceite atendidos;
-   - testes passando (rode a suíte; se o escopo tem telas, rode a suíte Playwright via CLI: `npx playwright test`);
-   - **verificação independente registrada**: `verificada_em:` preenchido e a seção "Verificação independente" com a decisão do usuário. Sem isso, **não prossiga**: pare, mostre o que falta e ofereça `/pato/verify`. A dispensa é exceção: só com ordem explícita do usuário, registrada nessa seção.
-   Para os demais itens, se algo faltar, mostre o que está pendente e pergunte se deve fechar mesmo assim. Não prossiga sem confirmação.
+   - testes passando (rode a suíte; se o escopo tem telas, rode a suíte Playwright via CLI: `npx playwright test`).
+   Se algo faltar, mostre o que está pendente e pergunte se deve fechar mesmo assim. Não prossiga sem confirmação.
+4. Bloqueios — sem estes itens, **não prossiga**: pare, mostre o que falta e ofereça o caminho.
+   - **Verificação independente registrada:** `verificada_em:` preenchido e a seção "Verificação independente" com a decisão do usuário. Falta → ofereça `/pato/verify`. A dispensa é exceção: só com ordem explícita do usuário, registrada nessa seção.
+   - **Limite de 500 linhas:** meça com o comando da seção "Limite de tamanho" da spec (em cada repo tocado, somando). Acima de 500 → não abra o MR/PR nem divida em vários; ofereça voltar ao `/pato/implement` para reduzir o escopo da US. Só siga com exceção explícita do usuário já registrada em "Decisões e respostas do usuário".
+   - **Branch só desta US:** `git log --oneline <alvo>..HEAD` mostra só commits desta spec. Commit de outra US por baixo (branch empilhada) → pare e mostre.
 
 ## 2. Perguntar sobre os testes (OBRIGATÓRIO)
 
@@ -56,11 +59,16 @@ git ls-remote --exit-code --heads origin develop >/dev/null 2>&1 && echo develop
 
 ## 5. Texto do MR/PR
 
+**Um MR/PR por repo tocado, todos desta US** — nunca dois da mesma US no mesmo repo, nem MRs por faixa de commits. A US é revisada como uma entrega.
+
 Monte a partir da spec e de `git log <alvo>..HEAD` e `git diff --stat <alvo>...HEAD`. Título: `<ID> <tipo>: <título da spec>` quando houver chave de card (a chave no início do título e da branch facilita o vínculo automático no GitLab/GitHub); sem chave, `<tipo>: <título>`. Descrição em português, neste formato:
 
 ```markdown
+## História
+Como <persona>, quero <capacidade>, para <benefício>.
+
 ## O que foi feito
-<resumo em 2–4 frases do resultado entregue, não do processo>
+<resumo em 2–4 frases do que a persona consegue fazer agora — o resultado entregue, não o processo>
 
 ## Mudanças
 - <mudança relevante 1, com o módulo/arquivo>
@@ -77,16 +85,23 @@ Monte a partir da spec e de `git log <alvo>..HEAD` e `git diff --stat <alvo>...H
 ## Critérios de aceite
 - [x] <critério da spec>
 
+## Tamanho
+<N> linhas de lógica de 500 (medido com o comando da spec; por repo, se mais de um)<; exceção autorizada pelo usuário: <motivo>, se houver>
+
 ## Observações
 <migrações, variáveis de ambiente novas, riscos, pontos em aberto — ou "Nenhuma">
 
 Card: <url do card ou "—">
-Spec: `docs/specs/<ID>-<slug>.md`
+Spec: `<caminho da spec>`<; mapa: `<caminho do mapa:>` — próxima US: <US e título, ou "nenhuma">>
 ```
+
+Com mais de um repo, todos os MRs/PRs levam a mesma descrição e, no topo, a ordem de merge (ex.: server antes do client) e os links dos outros — ao abrir o último, atualize a descrição dos anteriores.
 
 Salve a descrição em um arquivo temporário (ex.: `$(mktemp)`), fora do repositório.
 
 ## 6. Push e abertura do MR/PR
+
+Em cada repo tocado:
 
 1. `git push -u origin <branch>`.
 2. Abra o MR/PR pelo que estiver disponível:
@@ -108,7 +123,7 @@ Salve a descrição em um arquivo temporário (ex.: `$(mktemp)`), fora do reposi
 
 ## 7. Registrar o link na spec
 
-Preencha `merge_request:` na spec com a URL do MR/PR, commit `docs(spec): link do MR da spec <ID>` e push.
+Preencha `merge_request:` na spec com a URL do MR/PR (uma por repo tocado), commit `docs(spec): link do MR da spec <ID>` e push.
 
 ## 8. Atualizar o card (só se acessível)
 
@@ -119,22 +134,25 @@ Só faça este passo se o card foi lido de um serviço com MCP conectado e permi
    ```markdown
    Merge Request aberto: <url do MR/PR>
 
+   - **História:** Como <persona>, quero <capacidade>, para <benefício>.
    - **Branch:** `<branch>` → `<alvo>`
    - **O que foi feito:** <resumo em 1–3 frases, o mesmo da descrição>
    - **Testes:** <resumo do Registro de testes: automatizados, Playwright CLI, manuais/QA, ambiente e resultado>
-   - **Spec:** `docs/specs/<ID>-<slug>.md`
+   - **Spec:** `<caminho da spec>`
+   - **Próximas histórias:** <US ainda não entregues do mapa, ou "nenhuma — o card está completo">
    ```
 
 2. **Mover o status para revisão.**
    1. Liste as transições disponíveis do card. Não presuma o nome: o workflow varia por projeto.
    2. Escolha a transição cujo status de destino seja o de revisão de código (ex.: "Code Review", "Em revisão", "In Review"). O card ainda não foi mergeado: nunca sugira um status de concluído ("Done", "Concluído", "Fechado").
-   3. Confirme com o usuário via tool `question` antes de mover: a transição sugerida primeiro, as demais disponíveis como alternativas e a opção "Não mover". Se nenhuma transição parecer de revisão, não sugira nenhuma como recomendada; só liste as disponíveis.
-   4. Se o card já estiver no status de destino, diga isso e não faça a transição.
-   5. Se a transição exigir campos obrigatórios que você não tem como preencher, pergunte os valores ao usuário em vez de inventar.
+   3. Se o mapa ainda tiver US não entregues, o card segue em andamento: a opção recomendada é "Não mover". A transição para revisão é a recomendada só quando esta for a última US do card.
+   4. Confirme com o usuário via tool `question` antes de mover: a opção recomendada primeiro, as demais transições disponíveis como alternativas e a opção "Não mover". Se nenhuma transição parecer de revisão, não sugira nenhuma como recomendada; só liste as disponíveis.
+   5. Se o card já estiver no status de destino, diga isso e não faça a transição.
+   6. Se a transição exigir campos obrigatórios que você não tem como preencher, pergunte os valores ao usuário em vez de inventar.
 3. Não altere mais nada no card (responsável, sprint, campos, descrição) sem pedido do usuário.
 
 Se a chamada falhar, não desfaça nada: o MR/PR continua válido. Avise o usuário e entregue o texto do comentário pronto para colar no card.
 
 ## 9. Finalizar
 
-Responda ao usuário com o link do MR/PR, a branch alvo e o que foi feito no card: comentário (adicionado, editado, não feito) e status (de qual para qual, ou que não foi movido).
+Responda ao usuário com o link do MR/PR (um por repo tocado), a branch alvo, as linhas medidas contra o limite de 500 e o que foi feito no card: comentário (adicionado, editado, não feito) e status (de qual para qual, ou que não foi movido). Com mapa — ou com uma US cortada registrada em "Fora" da spec —, diga qual é a próxima US e o comando para detalhá-la: `/pato/spec <chave do card>` (sem chave, `/pato/spec <caminho do mapa ou da spec>`).
